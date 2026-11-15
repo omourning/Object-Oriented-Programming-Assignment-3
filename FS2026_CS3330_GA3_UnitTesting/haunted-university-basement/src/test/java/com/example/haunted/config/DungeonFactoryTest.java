@@ -1,5 +1,12 @@
 package com.example.haunted.config;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
+
 import com.example.haunted.engine.GameEngine;
 import com.example.haunted.model.BossMonster;
 import com.example.haunted.model.Direction;
@@ -7,17 +14,11 @@ import com.example.haunted.model.QuestStatus;
 import com.example.haunted.model.Room;
 import com.example.haunted.model.Trap;
 import com.example.haunted.model.TrapType;
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DungeonFactoryTest {
 
 	private static Room lectureHall() {
-		return DungeonFactory.createGame().getCurrentRoom().getExit(Direction.EAST)
+		return DungeonFactory.createGame().getCurrentRoom().getExit(Direction.EAST);
 	}
 
 	@Test
