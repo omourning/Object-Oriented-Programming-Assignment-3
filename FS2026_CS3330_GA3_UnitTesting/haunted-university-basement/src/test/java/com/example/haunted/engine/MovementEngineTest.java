@@ -46,7 +46,7 @@ class MovementEngineTest {
 	@EnumSource(Direction.class)
 	void movingWithNoExitFailsAndPlayerStays(Direction direction) {
 		Room start = startRoom();
-		Player player = player = playerIn(start);
+		Player player = playerIn(start);
 
 		MoveResult result = engine().move(player, direction);
 

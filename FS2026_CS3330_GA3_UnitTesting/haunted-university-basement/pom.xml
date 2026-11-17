@@ -17,9 +17,18 @@
     </properties>
 
     <dependencies>
+    <!-- This dependency provides JUnit (JUnit 5): @Test, @ParameterizedTest, and the Assertions class used by every test. -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        
+        <!-- This dependency provides JUnit Platform launcher, which Pitest uses to find and run JUnit tests during mutation testing. -->
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
@@ -35,10 +44,33 @@
                     <useModulePath>false</useModulePath>
                 </configuration>
             </plugin>
+            <!-- Pitest mutation testing plugin. Run with: clean test-compile org.pitest:pitest-maven:mutationCoverage-->
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
+                <groupId>org.pitest</groupId>
+                <artifactId>pitest-maven</artifactId>
+                <version>1.19.4</version>
+                <dependencies>
+			    <!-- This dependency lets Pitest run JUnit 5 tests; without it Pitest finds no tests. -->
+			        <dependency>
+			            <groupId>org.pitest</groupId>
+			            <artifactId>pitest-junit5-plugin</artifactId>
+			            <version>1.2.3</version>
+			        </dependency>
+			    </dependencies>
+                <configuration>
+                	<targetClasses>
+                		<param>com.example.haunted.*</param>
+                	</targetClasses>
+                	<targetTests>
+                		<param>com.example.haunted.*</param>
+                	</targetTests>
+                	<outputFormats>
+                		<format>HTML</format>
+                		<format>CSV</format>
+                		<format>XML</format>
+                	</outputFormats>
+                    <timestampedReports>false</timestampedReports>
+                </configuration>
             </plugin>
         </plugins>
     </build>
