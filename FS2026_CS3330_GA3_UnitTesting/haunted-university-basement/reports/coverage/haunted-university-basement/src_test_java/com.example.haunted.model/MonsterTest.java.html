@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>MonsterTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">haunted-university-basement (Nov 16, 2026 7:13:15 PM)</a> &gt; <a href="../../index.html" class="el_group">haunted-university-basement</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.example.haunted.model</a> &gt; <span class="el_source">MonsterTest.java</span></div><h1>MonsterTest.java</h1><pre class="source lang-java linenums"> package com.example.haunted.model;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+<span class="fc" id="L12">class MonsterTest {</span>
+
+    private Monster createMonster(int health) {
+<span class="fc" id="L15">        return new Monster(&quot;Ghost&quot;, health, 15, 5, new ArrayList&lt;&gt;());</span>
+    }
+
+    @Test
+    void constructorShouldInitializeMonsterStats() {
+<span class="fc" id="L20">        Monster monster = createMonster(100);</span>
+
+<span class="fc" id="L22">        assertEquals(&quot;Ghost&quot;, monster.getName());</span>
+<span class="fc" id="L23">        assertEquals(100, monster.getHealth());</span>
+<span class="fc" id="L24">        assertEquals(100, monster.getMaxHealth());</span>
+<span class="fc" id="L25">        assertEquals(15, monster.getAttack());</span>
+<span class="fc" id="L26">        assertEquals(5, monster.getDefense());</span>
+<span class="fc" id="L27">        assertTrue(monster.isAlive());</span>
+<span class="fc" id="L28">    }</span>
+
+    @Test
+    void constructorShouldRejectNullName() {
+<span class="fc" id="L32">        assertThrows(</span>
+<span class="fc" id="L33">            NullPointerException.class,</span>
+<span class="pc" id="L34">            () -&gt; new Monster(null, 100, 15, 5, new ArrayList&lt;&gt;())</span>
+        );
+<span class="fc" id="L36">    }</span>
+
+    @Test
+    void constructorShouldRejectNullLootList() {
+<span class="fc" id="L40">        assertThrows(</span>
+<span class="fc" id="L41">            NullPointerException.class,</span>
+<span class="pc" id="L42">            () -&gt; new Monster(&quot;Ghost&quot;, 100, 15, 5, null)</span>
+        );
+<span class="fc" id="L44">    }</span>
+
+    @ParameterizedTest
+    @CsvSource({
+        &quot;0, 100&quot;,
+        &quot;10, 90&quot;,
+        &quot;50, 50&quot;,
+        &quot;100, 0&quot;,
+        &quot;150, 0&quot;,
+        &quot;-5, 100&quot;
+    })
+    void takeDamageShouldHandleDifferentAmounts(
+            int damage, int expectedHealth) {
+<span class="fc" id="L57">        Monster monster = createMonster(100);</span>
+
+<span class="fc" id="L59">        monster.takeDamage(damage);</span>
+
+<span class="fc" id="L61">        assertEquals(expectedHealth, monster.getHealth());</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        assertEquals(expectedHealth &gt; 0, monster.isAlive());</span>
+<span class="fc" id="L63">    }</span>
+
+    @Test
+    void monsterShouldRemainDeadAfterAdditionalDamage() {
+<span class="fc" id="L67">        Monster monster = createMonster(50);</span>
+
+<span class="fc" id="L69">        monster.takeDamage(50);</span>
+<span class="fc" id="L70">        monster.takeDamage(20);</span>
+
+<span class="fc" id="L72">        assertEquals(0, monster.getHealth());</span>
+<span class="fc" id="L73">        assertFalse(monster.isAlive());</span>
+<span class="fc" id="L74">    }</span>
+
+    @Test
+    void damageShouldNotReduceHealthBelowZero() {
+<span class="fc" id="L78">        Monster monster = createMonster(20);</span>
+
+<span class="fc" id="L80">        monster.takeDamage(100);</span>
+
+<span class="fc" id="L82">        assertEquals(0, monster.getHealth());</span>
+<span class="fc" id="L83">        assertFalse(monster.isAlive());</span>
+<span class="fc" id="L84">    }</span>
+
+    @Test
+    void monsterShouldStartWithProvidedLoot() {
+<span class="fc" id="L88">        Weapon weapon = new Weapon(&quot;Rusty Sword&quot;, &quot;An old sword&quot;, 3);</span>
+<span class="fc" id="L89">        Armor armor = new Armor(&quot;Old Armor&quot;, &quot;Worn armor&quot;, 2);</span>
+<span class="fc" id="L90">        List&lt;Item&gt; loot = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L91">        loot.add(weapon);</span>
+<span class="fc" id="L92">        loot.add(armor);</span>
+
+<span class="fc" id="L94">        Monster monster = new Monster(&quot;Ghost&quot;, 50, 10, 3, loot);</span>
+
+<span class="fc" id="L96">        assertEquals(2, monster.getLoot().size());</span>
+<span class="fc" id="L97">        assertSame(weapon, monster.getLoot().get(0));</span>
+<span class="fc" id="L98">        assertSame(armor, monster.getLoot().get(1));</span>
+<span class="fc" id="L99">    }</span>
+
+    @Test
+    void monsterShouldKeepItsOwnCopyOfLoot() {
+<span class="fc" id="L103">        List&lt;Item&gt; loot = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L104">        loot.add(new Weapon(&quot;Sword&quot;, &quot;A sword&quot;, 5));</span>
+
+<span class="fc" id="L106">        Monster monster = new Monster(&quot;Ghost&quot;, 50, 10, 3, loot);</span>
+
+<span class="fc" id="L108">        loot.clear();</span>
+
+<span class="fc" id="L110">        assertEquals(1, monster.getLoot().size());</span>
+<span class="fc" id="L111">    }</span>
+
+    @Test
+    void getLootShouldNotAllowDirectModification() {
+<span class="fc" id="L115">        Monster monster = createMonster(50);</span>
+
+<span class="fc" id="L117">        assertThrows(</span>
+<span class="fc" id="L118">            UnsupportedOperationException.class,</span>
+<span class="pc" id="L119">            () -&gt; monster.getLoot().add(</span>
+<span class="fc" id="L120">                new Weapon(&quot;Sword&quot;, &quot;A sword&quot;, 5)</span>
+<span class="nc" id="L121">            )</span>
+        );
+<span class="fc" id="L123">    }</span>
+
+    @Test
+    void monsterWithZeroHealthShouldNotBeAlive() {
+<span class="fc" id="L127">        Monster monster = createMonster(0);</span>
+
+<span class="fc" id="L129">        assertEquals(0, monster.getHealth());</span>
+<span class="fc" id="L130">        assertFalse(monster.isAlive());</span>
+<span class="fc" id="L131">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span>haunted-university-basement (Nov 16, 2026 7:13:15 PM)</div></body></html>

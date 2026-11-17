@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>RoomTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">haunted-university-basement (Nov 16, 2026 7:13:15 PM)</a> &gt; <a href="../../index.html" class="el_group">haunted-university-basement</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.example.haunted.model</a> &gt; <span class="el_source">RoomTest.java</span></div><h1>RoomTest.java</h1><pre class="source lang-java linenums">package com.example.haunted.model;
+
+import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+<span class="fc" id="L9">class RoomTest {</span>
+
+    private Room createRoom() {
+<span class="fc" id="L12">        return new Room(&quot;room1&quot;, &quot;Classroom&quot;, &quot;An old classroom.&quot;);</span>
+    }
+
+    @Test
+    void constructorShouldInitializeRoomProperties() {
+<span class="fc" id="L17">        Room room = createRoom();</span>
+
+<span class="fc" id="L19">        assertEquals(&quot;room1&quot;, room.getId());</span>
+<span class="fc" id="L20">        assertEquals(&quot;Classroom&quot;, room.getName());</span>
+<span class="fc" id="L21">        assertEquals(&quot;An old classroom.&quot;, room.getDescription());</span>
+<span class="fc" id="L22">        assertTrue(room.getExits().isEmpty());</span>
+<span class="fc" id="L23">        assertTrue(room.getItems().isEmpty());</span>
+<span class="fc" id="L24">        assertTrue(room.getMonsters().isEmpty());</span>
+<span class="fc" id="L25">        assertFalse(room.isLocked());</span>
+<span class="fc" id="L26">        assertNull(room.getTrap());</span>
+<span class="fc" id="L27">    }</span>
+
+    @Test
+    void constructorShouldRejectNullId() {
+<span class="fc" id="L31">        assertThrows(</span>
+<span class="fc" id="L32">            NullPointerException.class,</span>
+<span class="pc" id="L33">            () -&gt; new Room(null, &quot;Classroom&quot;, &quot;Description&quot;)</span>
+        );
+<span class="fc" id="L35">    }</span>
+
+    @Test
+    void constructorShouldRejectNullName() {
+<span class="fc" id="L39">        assertThrows(</span>
+<span class="fc" id="L40">            NullPointerException.class,</span>
+<span class="pc" id="L41">            () -&gt; new Room(&quot;room1&quot;, null, &quot;Description&quot;)</span>
+        );
+<span class="fc" id="L43">    }</span>
+
+    @Test
+    void constructorShouldRejectNullDescription() {
+<span class="fc" id="L47">        assertThrows(</span>
+<span class="fc" id="L48">            NullPointerException.class,</span>
+<span class="pc" id="L49">            () -&gt; new Room(&quot;room1&quot;, &quot;Classroom&quot;, null)</span>
+        );
+<span class="fc" id="L51">    }</span>
+
+    @Test
+    void connectShouldCreateExit() {
+<span class="fc" id="L55">        Room room = createRoom();</span>
+<span class="fc" id="L56">        Room hallway = new Room(&quot;room2&quot;, &quot;Hallway&quot;, &quot;A dark hallway.&quot;);</span>
+
+<span class="fc" id="L58">        room.connect(Direction.NORTH, hallway);</span>
+
+<span class="fc" id="L60">        assertSame(hallway, room.getExit(Direction.NORTH));</span>
+<span class="fc" id="L61">        assertEquals(1, room.getExits().size());</span>
+<span class="fc" id="L62">    }</span>
+
+    @Test
+    void getExitShouldReturnNullForUnconnectedDirection() {
+<span class="fc" id="L66">        Room room = createRoom();</span>
+
+<span class="fc" id="L68">        assertNull(room.getExit(Direction.SOUTH));</span>
+<span class="fc" id="L69">    }</span>
+
+    @Test
+    void connectShouldRejectNullDirection() {
+<span class="fc" id="L73">        Room room = createRoom();</span>
+
+<span class="fc" id="L75">        assertThrows(</span>
+<span class="fc" id="L76">            NullPointerException.class,</span>
+<span class="pc" id="L77">            () -&gt; room.connect(null, createRoom())</span>
+        );
+<span class="fc" id="L79">    }</span>
+
+    @Test
+    void connectShouldRejectNullRoom() {
+<span class="fc" id="L83">        Room room = createRoom();</span>
+
+<span class="fc" id="L85">        assertThrows(</span>
+<span class="fc" id="L86">            NullPointerException.class,</span>
+<span class="pc" id="L87">            () -&gt; room.connect(Direction.NORTH, null)</span>
+        );
+<span class="fc" id="L89">    }</span>
+
+    @Test
+    void getExitsShouldNotAllowDirectModification() {
+<span class="fc" id="L93">        Room room = createRoom();</span>
+
+<span class="fc" id="L95">        assertThrows(</span>
+<span class="fc" id="L96">            UnsupportedOperationException.class,</span>
+<span class="pc" id="L97">            () -&gt; room.getExits().clear()</span>
+        );
+<span class="fc" id="L99">    }</span>
+
+    @Test
+    void addItemShouldStoreItem() {
+<span class="fc" id="L103">        Room room = createRoom();</span>
+<span class="fc" id="L104">        Weapon weapon = new Weapon(&quot;Sword&quot;, &quot;A rusty sword&quot;, 5);</span>
+
+<span class="fc" id="L106">        room.addItem(weapon);</span>
+
+<span class="fc" id="L108">        assertEquals(1, room.getItems().size());</span>
+<span class="fc" id="L109">        assertSame(weapon, room.findItem(&quot;Sword&quot;).orElse(null));</span>
+<span class="fc" id="L110">    }</span>
+
+    @Test
+    void addItemShouldRejectNull() {
+<span class="fc" id="L114">        Room room = createRoom();</span>
+
+<span class="fc" id="L116">        assertThrows(</span>
+<span class="fc" id="L117">            NullPointerException.class,</span>
+<span class="pc" id="L118">            () -&gt; room.addItem(null)</span>
+        );
+<span class="fc" id="L120">    }</span>
+
+    @Test
+    void findItemShouldIgnoreLetterCase() {
+<span class="fc" id="L124">        Room room = createRoom();</span>
+<span class="fc" id="L125">        room.addItem(new Weapon(&quot;Magic Sword&quot;, &quot;A glowing sword&quot;, 8));</span>
+
+<span class="fc" id="L127">        assertTrue(room.findItem(&quot;magic sword&quot;).isPresent());</span>
+<span class="fc" id="L128">        assertTrue(room.findItem(&quot;MAGIC SWORD&quot;).isPresent());</span>
+<span class="fc" id="L129">    }</span>
+
+    @Test
+    void findItemShouldReturnEmptyWhenItemIsMissing() {
+<span class="fc" id="L133">        Room room = createRoom();</span>
+
+<span class="fc" id="L135">        assertTrue(room.findItem(&quot;Missing Item&quot;).isEmpty());</span>
+<span class="fc" id="L136">    }</span>
+
+    @Test
+    void removeItemByNameShouldRemoveItem() {
+<span class="fc" id="L140">        Room room = createRoom();</span>
+<span class="fc" id="L141">        room.addItem(new Weapon(&quot;Sword&quot;, &quot;A rusty sword&quot;, 5));</span>
+
+<span class="fc" id="L143">        Item removed = room.removeItemByName(&quot;Sword&quot;);</span>
+
+<span class="fc" id="L145">        assertNotNull(removed);</span>
+<span class="fc" id="L146">        assertEquals(&quot;Sword&quot;, removed.getName());</span>
+<span class="fc" id="L147">        assertTrue(room.getItems().isEmpty());</span>
+<span class="fc" id="L148">    }</span>
+
+    @Test
+    void removeItemByNameShouldIgnoreLetterCase() {
+<span class="fc" id="L152">        Room room = createRoom();</span>
+<span class="fc" id="L153">        room.addItem(new Weapon(&quot;Sword&quot;, &quot;A rusty sword&quot;, 5));</span>
+
+<span class="fc" id="L155">        Item removed = room.removeItemByName(&quot;sWoRd&quot;);</span>
+
+<span class="fc" id="L157">        assertNotNull(removed);</span>
+<span class="fc" id="L158">        assertTrue(room.getItems().isEmpty());</span>
+<span class="fc" id="L159">    }</span>
+
+    @Test
+    void removeItemByNameShouldReturnNullWhenMissing() {
+<span class="fc" id="L163">        Room room = createRoom();</span>
+
+<span class="fc" id="L165">        assertNull(room.removeItemByName(&quot;Missing Item&quot;));</span>
+<span class="fc" id="L166">    }</span>
+
+    @Test
+    void getItemsShouldNotAllowDirectModification() {
+<span class="fc" id="L170">        Room room = createRoom();</span>
+<span class="fc" id="L171">        room.addItem(new Weapon(&quot;Sword&quot;, &quot;A rusty sword&quot;, 5));</span>
+
+<span class="fc" id="L173">        assertThrows(</span>
+<span class="fc" id="L174">            UnsupportedOperationException.class,</span>
+<span class="pc" id="L175">            () -&gt; room.getItems().clear()</span>
+        );
+<span class="fc" id="L177">    }</span>
+
+    @Test
+    void addMonsterShouldStoreMonster() {
+<span class="fc" id="L181">        Room room = createRoom();</span>
+<span class="fc" id="L182">        Monster monster = new Monster(</span>
+<span class="fc" id="L183">            &quot;Ghost&quot;, 50, 10, 3, new ArrayList&lt;&gt;()</span>
+        );
+
+<span class="fc" id="L186">        room.addMonster(monster);</span>
+
+<span class="fc" id="L188">        assertEquals(1, room.getMonsters().size());</span>
+<span class="fc" id="L189">        assertSame(monster, room.findMonster(&quot;Ghost&quot;).orElse(null));</span>
+<span class="fc" id="L190">    }</span>
+
+    @Test
+    void addMonsterShouldRejectNull() {
+<span class="fc" id="L194">        Room room = createRoom();</span>
+
+<span class="fc" id="L196">        assertThrows(</span>
+<span class="fc" id="L197">            NullPointerException.class,</span>
+<span class="pc" id="L198">            () -&gt; room.addMonster(null)</span>
+        );
+<span class="fc" id="L200">    }</span>
+
+    @Test
+    void findMonsterShouldIgnoreLetterCase() {
+<span class="fc" id="L204">        Room room = createRoom();</span>
+<span class="fc" id="L205">        room.addMonster(</span>
+<span class="fc" id="L206">            new Monster(&quot;Phantom&quot;, 50, 10, 3, new ArrayList&lt;&gt;())</span>
+        );
+
+<span class="fc" id="L209">        assertTrue(room.findMonster(&quot;phantom&quot;).isPresent());</span>
+<span class="fc" id="L210">        assertTrue(room.findMonster(&quot;PHANTOM&quot;).isPresent());</span>
+<span class="fc" id="L211">    }</span>
+
+    @Test
+    void findMonsterShouldReturnEmptyWhenMissing() {
+<span class="fc" id="L215">        Room room = createRoom();</span>
+
+<span class="fc" id="L217">        assertTrue(room.findMonster(&quot;Missing Monster&quot;).isEmpty());</span>
+<span class="fc" id="L218">    }</span>
+
+    @Test
+    void hasLivingMonstersShouldReturnFalseWhenRoomIsEmpty() {
+<span class="fc" id="L222">        Room room = createRoom();</span>
+
+<span class="fc" id="L224">        assertFalse(room.hasLivingMonsters());</span>
+<span class="fc" id="L225">    }</span>
+
+    @Test
+    void hasLivingMonstersShouldReturnTrueWhenMonsterIsAlive() {
+<span class="fc" id="L229">        Room room = createRoom();</span>
+<span class="fc" id="L230">        room.addMonster(</span>
+<span class="fc" id="L231">            new Monster(&quot;Ghost&quot;, 50, 10, 3, new ArrayList&lt;&gt;())</span>
+        );
+
+<span class="fc" id="L234">        assertTrue(room.hasLivingMonsters());</span>
+<span class="fc" id="L235">    }</span>
+
+    @Test
+    void hasLivingMonstersShouldReturnFalseWhenAllMonstersAreDead() {
+<span class="fc" id="L239">        Room room = createRoom();</span>
+<span class="fc" id="L240">        Monster monster = new Monster(</span>
+<span class="fc" id="L241">            &quot;Ghost&quot;, 50, 10, 3, new ArrayList&lt;&gt;()</span>
+        );
+<span class="fc" id="L243">        monster.takeDamage(50);</span>
+<span class="fc" id="L244">        room.addMonster(monster);</span>
+
+<span class="fc" id="L246">        assertFalse(room.hasLivingMonsters());</span>
+<span class="fc" id="L247">    }</span>
+
+    @Test
+    void getMonstersShouldNotAllowDirectModification() {
+<span class="fc" id="L251">        Room room = createRoom();</span>
+
+<span class="fc" id="L253">        assertThrows(</span>
+<span class="fc" id="L254">            UnsupportedOperationException.class,</span>
+<span class="pc" id="L255">            () -&gt; room.getMonsters().clear()</span>
+        );
+<span class="fc" id="L257">    }</span>
+
+    @Test
+    void setLockedShouldStoreLockAndRequiredKey() {
+<span class="fc" id="L261">        Room room = createRoom();</span>
+
+<span class="fc" id="L263">        room.setLocked(true, &quot;Basement Key&quot;);</span>
+
+<span class="fc" id="L265">        assertTrue(room.isLocked());</span>
+<span class="fc" id="L266">        assertEquals(&quot;Basement Key&quot;, room.getRequiredKeyName());</span>
+<span class="fc" id="L267">    }</span>
+
+    @Test
+    void unlockShouldSucceedWhenRoomIsAlreadyUnlocked() {
+<span class="fc" id="L271">        Room room = createRoom();</span>
+
+<span class="fc" id="L273">        assertTrue(room.unlock(&quot;Any Key&quot;));</span>
+<span class="fc" id="L274">        assertFalse(room.isLocked());</span>
+<span class="fc" id="L275">    }</span>
+
+    @Test
+    void unlockShouldSucceedWithCorrectKeyIgnoringCase() {
+<span class="fc" id="L279">        Room room = createRoom();</span>
+<span class="fc" id="L280">        room.setLocked(true, &quot;Basement Key&quot;);</span>
+
+<span class="fc" id="L282">        assertTrue(room.unlock(&quot;basement key&quot;));</span>
+<span class="fc" id="L283">        assertFalse(room.isLocked());</span>
+<span class="fc" id="L284">    }</span>
+
+    @Test
+    void unlockShouldFailWithIncorrectKey() {
+<span class="fc" id="L288">        Room room = createRoom();</span>
+<span class="fc" id="L289">        room.setLocked(true, &quot;Basement Key&quot;);</span>
+
+<span class="fc" id="L291">        assertFalse(room.unlock(&quot;Office Key&quot;));</span>
+<span class="fc" id="L292">        assertTrue(room.isLocked());</span>
+<span class="fc" id="L293">    }</span>
+
+    @Test
+    void unlockShouldFailWhenRequiredKeyIsNullAndRoomIsLocked() {
+<span class="fc" id="L297">        Room room = createRoom();</span>
+<span class="fc" id="L298">        room.setLocked(true, null);</span>
+
+<span class="fc" id="L300">        assertFalse(room.unlock(&quot;Any Key&quot;));</span>
+<span class="fc" id="L301">        assertTrue(room.isLocked());</span>
+<span class="fc" id="L302">    }</span>
+
+    @Test
+    void setLockedFalseShouldUnlockRoom() {
+<span class="fc" id="L306">        Room room = createRoom();</span>
+<span class="fc" id="L307">        room.setLocked(true, &quot;Basement Key&quot;);</span>
+
+<span class="fc" id="L309">        room.setLocked(false, &quot;Basement Key&quot;);</span>
+
+<span class="fc" id="L311">        assertFalse(room.isLocked());</span>
+<span class="fc" id="L312">    }</span>
+
+    @Test
+    void setTrapShouldStoreTrap() {
+<span class="fc" id="L316">        Room room = createRoom();</span>
+<span class="fc" id="L317">        Trap trap = new Trap(</span>
+<span class="fc" id="L318">        	    &quot;Electric Trap&quot;, TrapType.ELECTRIC, 10, true, true</span>
+        	);
+<span class="fc" id="L320">        room.setTrap(trap);</span>
+
+<span class="fc" id="L322">        assertSame(trap, room.getTrap());</span>
+<span class="fc" id="L323">    }</span>
+
+    @Test
+    void setTrapShouldAllowRemovingTrap() {
+<span class="fc" id="L327">        Room room = createRoom();</span>
+<span class="fc" id="L328">        Trap trap = new Trap(</span>
+<span class="fc" id="L329">        	    &quot;Electric Trap&quot;, TrapType.ELECTRIC, 10, true, true</span>
+        	);
+<span class="fc" id="L331">        room.setTrap(trap);</span>
+
+<span class="fc" id="L333">        room.setTrap(null);</span>
+
+<span class="fc" id="L335">        assertNull(room.getTrap());</span>
+<span class="fc" id="L336">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span>haunted-university-basement (Nov 16, 2026 7:13:15 PM)</div></body></html>

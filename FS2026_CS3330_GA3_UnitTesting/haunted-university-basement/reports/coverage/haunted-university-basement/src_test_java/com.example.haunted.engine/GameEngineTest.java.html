@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>GameEngineTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">haunted-university-basement (Nov 16, 2026 7:13:15 PM)</a> &gt; <a href="../../index.html" class="el_group">haunted-university-basement</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.example.haunted.engine</a> &gt; <span class="el_source">GameEngineTest.java</span></div><h1>GameEngineTest.java</h1><pre class="source lang-java linenums">package com.example.haunted.engine;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
+
+import com.example.haunted.events.CombatResult;
+import com.example.haunted.events.InteractionResult;
+import com.example.haunted.events.MoveResult;
+import com.example.haunted.model.Direction;
+import com.example.haunted.model.Inventory;
+import com.example.haunted.model.Key;
+import com.example.haunted.model.Monster;
+import com.example.haunted.model.Player;
+import com.example.haunted.model.Potion;
+import com.example.haunted.model.Quest;
+import com.example.haunted.model.Room;
+import com.example.haunted.model.Weapon;
+import com.example.haunted.rules.DamageCalculator;
+import com.example.haunted.rules.QuestTracker;
+import com.example.haunted.rules.TrapResolver;
+
+<span class="fc" id="L26">class GameEngineTest {</span>
+
+	private GameEngine engine(Player player, Quest quest) {
+<span class="fc" id="L29">		QuestTracker tracker = new QuestTracker();</span>
+<span class="fc" id="L30">		return new GameEngine(player, quest, new MovementEngine(new TrapResolver()),</span>
+<span class="fc" id="L31">				new CombatEngine(new DamageCalculator(), tracker), new InteractionEngine(tracker));</span>
+	}
+
+	private Player playerIn(Room room) {
+<span class="fc" id="L35">		Player player = new Player(&quot;Tester&quot;, 50, 10, 3, new Inventory(8));</span>
+<span class="fc" id="L36">		player.setCurrentRoom(room);</span>
+<span class="fc" id="L37">		return player;</span>
+	}
+
+	private Room roomNamed(String id, String name) {
+<span class="fc" id="L41">		return new Room(id, name, &quot;A room in the basement.&quot;);</span>
+	}
+
+	@Test
+	void moveDelegatesToMovementEngine() {
+<span class="fc" id="L46">		Room start = roomNamed(&quot;start&quot;, &quot;Start Room&quot;);</span>
+<span class="fc" id="L47">		Room target = roomNamed(&quot;target&quot;, &quot;Target Room&quot;);</span>
+<span class="fc" id="L48">		start.connect(Direction.NORTH, target);</span>
+<span class="fc" id="L49">		Player player = playerIn(start);</span>
+<span class="fc" id="L50">		GameEngine game = engine(player, new Quest(&quot;Exam Quest&quot;, &quot;Complete the challenge.&quot;));</span>
+
+<span class="fc" id="L52">		MoveResult result = game.move(Direction.NORTH);</span>
+
+<span class="fc" id="L54">		assertTrue(result.isSuccess());</span>
+<span class="fc" id="L55">		assertEquals(&quot;Moved to Target Room.&quot;, result.getMessage());</span>
+<span class="fc" id="L56">		assertSame(target, player.getCurrentRoom());</span>
+<span class="fc" id="L57">		assertSame(target, game.getCurrentRoom());</span>
+<span class="fc" id="L58">	}</span>
+
+	@Test
+	void pickUpItemUsesInteractionEngineAndUpdatesRoomState() {
+<span class="fc" id="L62">		Room room = roomNamed(&quot;room&quot;, &quot;Study Hall&quot;);</span>
+<span class="fc" id="L63">		Weapon sword = new Weapon(&quot;Rusty Sword&quot;, &quot;A basic blade.&quot;, 3);</span>
+<span class="fc" id="L64">		room.addItem(sword);</span>
+<span class="fc" id="L65">		Player player = playerIn(room);</span>
+<span class="fc" id="L66">		GameEngine game = engine(player, new Quest(&quot;Exam Quest&quot;, &quot;Complete the challenge.&quot;));</span>
+
+<span class="fc" id="L68">		InteractionResult result = game.pickUpItem(&quot;Rusty Sword&quot;);</span>
+
+<span class="fc" id="L70">		assertTrue(result.isSuccess());</span>
+<span class="fc" id="L71">		assertEquals(&quot;Picked up Rusty Sword.&quot;, result.getMessage());</span>
+<span class="fc" id="L72">		assertTrue(player.getInventory().contains(&quot;Rusty Sword&quot;));</span>
+<span class="fc" id="L73">		assertTrue(room.getItems().isEmpty());</span>
+<span class="fc" id="L74">	}</span>
+
+	@Test
+	void equipItemAndUseItemWorkThroughInteractionEngine() {
+<span class="fc" id="L78">		Room room = roomNamed(&quot;room&quot;, &quot;Study Hall&quot;);</span>
+<span class="fc" id="L79">		Player player = playerIn(room);</span>
+<span class="fc" id="L80">		Weapon sword = new Weapon(&quot;Bronze Blade&quot;, &quot;A sturdy blade.&quot;, 4);</span>
+<span class="fc" id="L81">		Potion potion = new Potion(&quot;Healing Draught&quot;, &quot;Restores vitality.&quot;, 10);</span>
+<span class="fc" id="L82">		player.getInventory().addItem(sword);</span>
+<span class="fc" id="L83">		player.getInventory().addItem(potion);</span>
+<span class="fc" id="L84">		player.takeDamage(6);</span>
+<span class="fc" id="L85">		GameEngine game = engine(player, new Quest(&quot;Exam Quest&quot;, &quot;Complete the challenge.&quot;));</span>
+
+<span class="fc" id="L87">		InteractionResult equipResult = game.equipItem(&quot;Bronze Blade&quot;);</span>
+<span class="fc" id="L88">		InteractionResult useResult = game.useItem(&quot;Healing Draught&quot;);</span>
+
+<span class="fc" id="L90">		assertTrue(equipResult.isSuccess());</span>
+<span class="fc" id="L91">		assertEquals(&quot;Equipped weapon Bronze Blade.&quot;, equipResult.getMessage());</span>
+<span class="fc" id="L92">		assertSame(sword, player.getEquippedWeapon());</span>
+<span class="fc" id="L93">		assertTrue(useResult.isSuccess());</span>
+<span class="fc" id="L94">		assertEquals(&quot;Used Healing Draught.&quot;, useResult.getMessage());</span>
+<span class="fc" id="L95">		assertEquals(50, player.getHealth());</span>
+<span class="fc" id="L96">	}</span>
+
+	@Test
+	void unlockRoomUsesKeyFromInventory() {
+<span class="fc" id="L100">		Room start = roomNamed(&quot;start&quot;, &quot;Start Room&quot;);</span>
+<span class="fc" id="L101">		Room target = roomNamed(&quot;target&quot;, &quot;Archive Room&quot;);</span>
+<span class="fc" id="L102">		target.setLocked(true, &quot;Archive Key&quot;);</span>
+<span class="fc" id="L103">		start.connect(Direction.NORTH, target);</span>
+<span class="fc" id="L104">		Player player = playerIn(start);</span>
+<span class="fc" id="L105">		player.getInventory().addItem(new Key(&quot;Archive Key&quot;, &quot;Opens the archive.&quot;));</span>
+<span class="fc" id="L106">		GameEngine game = engine(player, new Quest(&quot;Exam Quest&quot;, &quot;Complete the challenge.&quot;));</span>
+
+<span class="fc" id="L108">		InteractionResult result = game.unlockRoom(Direction.NORTH);</span>
+
+<span class="fc" id="L110">		assertTrue(result.isSuccess());</span>
+<span class="fc" id="L111">		assertEquals(&quot;Unlocked Archive Room.&quot;, result.getMessage());</span>
+<span class="fc" id="L112">		assertFalse(target.isLocked());</span>
+<span class="fc" id="L113">	}</span>
+
+	@Test
+	void attackFindsMonsterByNameInCurrentRoom() {
+<span class="fc" id="L117">		Room room = roomNamed(&quot;room&quot;, &quot;Study Hall&quot;);</span>
+<span class="fc" id="L118">		Monster monster = new Monster(&quot;Shadow&quot;, 20, 8, 2, java.util.List.of());</span>
+<span class="fc" id="L119">		room.addMonster(monster);</span>
+<span class="fc" id="L120">		Player player = playerIn(room);</span>
+<span class="fc" id="L121">		GameEngine game = engine(player, new Quest(&quot;Exam Quest&quot;, &quot;Complete the challenge.&quot;));</span>
+
+<span class="fc" id="L123">		CombatResult result = game.attack(&quot;Shadow&quot;);</span>
+
+<span class="fc" id="L125">		assertTrue(result.isSuccess());</span>
+<span class="fc" id="L126">		assertEquals(&quot;Attacked Shadow.&quot;, result.getMessage());</span>
+<span class="fc" id="L127">		assertEquals(8, result.getDamageToMonster());</span>
+<span class="fc" id="L128">		assertEquals(5, result.getDamageToPlayer());</span>
+<span class="fc" id="L129">		assertEquals(12, monster.getHealth());</span>
+<span class="fc" id="L130">		assertEquals(45, player.getHealth());</span>
+<span class="fc" id="L131">	}</span>
+
+	@Test
+	void gameStateChecksReflectPlayerAndQuestStatus() {
+<span class="fc" id="L135">		Room room = roomNamed(&quot;room&quot;, &quot;Study Hall&quot;);</span>
+<span class="fc" id="L136">		Player player = playerIn(room);</span>
+<span class="fc" id="L137">		Quest quest = new Quest(&quot;Exam Quest&quot;, &quot;Complete the challenge.&quot;);</span>
+<span class="fc" id="L138">		GameEngine game = engine(player, quest);</span>
+
+<span class="fc" id="L140">		assertFalse(game.isGameOver());</span>
+<span class="fc" id="L141">		assertFalse(game.isGameWon());</span>
+<span class="fc" id="L142">		assertSame(player, game.getPlayer());</span>
+<span class="fc" id="L143">		assertSame(quest, game.getQuest());</span>
+<span class="fc" id="L144">		assertSame(room, game.getCurrentRoom());</span>
+
+<span class="fc" id="L146">		quest.markGradebookRecovered();</span>
+<span class="fc" id="L147">		quest.markPhantomDefeated();</span>
+<span class="fc" id="L148">		assertTrue(game.isGameWon());</span>
+
+<span class="fc" id="L150">		player.takeDamage(999);</span>
+<span class="fc" id="L151">		assertTrue(game.isGameOver());</span>
+<span class="fc" id="L152">		assertFalse(game.isGameWon());</span>
+<span class="fc" id="L153">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span>haunted-university-basement (Nov 16, 2026 7:13:15 PM)</div></body></html>

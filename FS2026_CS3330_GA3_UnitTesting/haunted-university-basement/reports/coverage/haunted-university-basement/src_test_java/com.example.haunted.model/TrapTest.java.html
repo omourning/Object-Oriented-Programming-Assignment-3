@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TrapTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">haunted-university-basement (Nov 16, 2026 7:13:15 PM)</a> &gt; <a href="../../index.html" class="el_group">haunted-university-basement</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.example.haunted.model</a> &gt; <span class="el_source">TrapTest.java</span></div><h1>TrapTest.java</h1><pre class="source lang-java linenums">package com.example.haunted.model;
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+<span class="fc" id="L7">class TrapTest {</span>
+
+    private Trap createTrap() {
+<span class="fc" id="L10">        return new Trap(</span>
+<span class="fc" id="L11">            &quot;Electric Trap&quot;,</span>
+<span class="fc" id="L12">            TrapType.ELECTRIC,</span>
+<span class="fc" id="L13">            20,</span>
+<span class="fc" id="L14">            true,</span>
+<span class="fc" id="L15">            true</span>
+        );
+    }
+
+    @Test
+    void constructorShouldInitializeTrapProperties() {
+<span class="fc" id="L21">        Trap trap = createTrap();</span>
+
+<span class="fc" id="L23">        assertEquals(&quot;Electric Trap&quot;, trap.getName());</span>
+<span class="fc" id="L24">        assertEquals(TrapType.ELECTRIC, trap.getType());</span>
+<span class="fc" id="L25">        assertEquals(20, trap.getDamage());</span>
+<span class="fc" id="L26">        assertTrue(trap.isArmed());</span>
+<span class="fc" id="L27">        assertTrue(trap.isOneTimeTrigger());</span>
+<span class="fc" id="L28">    }</span>
+
+    @Test
+    void constructorShouldRejectNullName() {
+<span class="fc" id="L32">        assertThrows(</span>
+<span class="fc" id="L33">            NullPointerException.class,</span>
+<span class="pc" id="L34">            () -&gt; new Trap(null, TrapType.ELECTRIC, 20, true, true)</span>
+        );
+<span class="fc" id="L36">    }</span>
+
+    @Test
+    void constructorShouldRejectNullType() {
+<span class="fc" id="L40">        assertThrows(</span>
+<span class="fc" id="L41">            NullPointerException.class,</span>
+<span class="pc" id="L42">            () -&gt; new Trap(&quot;Electric Trap&quot;, null, 20, true, true)</span>
+        );
+<span class="fc" id="L44">    }</span>
+
+    @Test
+    void disarmShouldSetArmedToFalse() {
+<span class="fc" id="L48">        Trap trap = createTrap();</span>
+
+<span class="fc" id="L50">        trap.disarm();</span>
+
+<span class="fc" id="L52">        assertFalse(trap.isArmed());</span>
+<span class="fc" id="L53">    }</span>
+
+    @Test
+    void disarmingAnAlreadyDisarmedTrapShouldKeepItDisarmed() {
+<span class="fc" id="L57">        Trap trap = new Trap(</span>
+<span class="fc" id="L58">            &quot;Steam Trap&quot;,</span>
+<span class="fc" id="L59">            TrapType.STEAM,</span>
+<span class="fc" id="L60">            10,</span>
+<span class="fc" id="L61">            false,</span>
+<span class="fc" id="L62">            false</span>
+        );
+
+<span class="fc" id="L65">        trap.disarm();</span>
+
+<span class="fc" id="L67">        assertFalse(trap.isArmed());</span>
+<span class="fc" id="L68">    }</span>
+
+    @Test
+    void constructorShouldPreserveUnarmedState() {
+<span class="fc" id="L72">        Trap trap = new Trap(</span>
+<span class="fc" id="L73">            &quot;Steam Trap&quot;,</span>
+<span class="fc" id="L74">            TrapType.STEAM,</span>
+<span class="fc" id="L75">            10,</span>
+<span class="fc" id="L76">            false,</span>
+<span class="fc" id="L77">            true</span>
+        );
+
+<span class="fc" id="L80">        assertFalse(trap.isArmed());</span>
+<span class="fc" id="L81">        assertTrue(trap.isOneTimeTrigger());</span>
+<span class="fc" id="L82">    }</span>
+
+    @Test
+    void trapShouldSupportDifferentDamageValues() {
+<span class="fc" id="L86">        Trap noDamageTrap = new Trap(</span>
+<span class="fc" id="L87">            &quot;Weak Trap&quot;, TrapType.ELECTRIC, 0, true, false</span>
+        );
+
+<span class="fc" id="L90">        Trap strongTrap = new Trap(</span>
+<span class="fc" id="L91">            &quot;Strong Trap&quot;, TrapType.STEAM, 100, true, false</span>
+        );
+
+<span class="fc" id="L94">        assertEquals(0, noDamageTrap.getDamage());</span>
+<span class="fc" id="L95">        assertEquals(100, strongTrap.getDamage());</span>
+<span class="fc" id="L96">    }</span>
+
+    @Test
+    void trapShouldPreserveRepeatTriggerSetting() {
+<span class="fc" id="L100">        Trap trap = new Trap(</span>
+<span class="fc" id="L101">            &quot;Steam Trap&quot;,</span>
+<span class="fc" id="L102">            TrapType.STEAM,</span>
+<span class="fc" id="L103">            15,</span>
+<span class="fc" id="L104">            true,</span>
+<span class="fc" id="L105">            false</span>
+        );
+
+<span class="fc" id="L108">        assertFalse(trap.isOneTimeTrigger());</span>
+<span class="fc" id="L109">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span>haunted-university-basement (Nov 16, 2026 7:13:15 PM)</div></body></html>

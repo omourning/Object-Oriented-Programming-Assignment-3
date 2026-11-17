@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>DungeonFactoryTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">haunted-university-basement (Nov 16, 2026 7:13:15 PM)</a> &gt; <a href="../../index.html" class="el_group">haunted-university-basement</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.example.haunted.config</a> &gt; <span class="el_source">DungeonFactoryTest.java</span></div><h1>DungeonFactoryTest.java</h1><pre class="source lang-java linenums">package com.example.haunted.config;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
+
+import com.example.haunted.engine.GameEngine;
+import com.example.haunted.model.BossMonster;
+import com.example.haunted.model.Direction;
+import com.example.haunted.model.QuestStatus;
+import com.example.haunted.model.Room;
+import com.example.haunted.model.Trap;
+import com.example.haunted.model.TrapType;
+
+<span class="fc" id="L18">class DungeonFactoryTest {</span>
+
+	private static Room lectureHall() {
+<span class="fc" id="L21">		return DungeonFactory.createGame().getCurrentRoom().getExit(Direction.EAST);</span>
+	}
+
+	@Test
+	void playerStartsInStairwellWithStartingStats() {
+<span class="fc" id="L26">		GameEngine game = DungeonFactory.createGame();</span>
+
+<span class="fc" id="L28">		assertEquals(&quot;stairwell&quot;, game.getCurrentRoom().getId());</span>
+<span class="fc" id="L29">		assertEquals(&quot;Student Explorer&quot;, game.getPlayer().getName());</span>
+<span class="fc" id="L30">		assertEquals(50, game.getPlayer().getHealth());</span>
+<span class="fc" id="L31">		assertEquals(7, game.getPlayer().getAttackPower());</span>
+<span class="fc" id="L32">		assertEquals(2, game.getPlayer().getDefensePower());</span>
+<span class="fc" id="L33">		assertEquals(8, game.getPlayer().getInventory().getCapacity());</span>
+<span class="fc" id="L34">		assertEquals(QuestStatus.NOT_STARTED, game.getQuest().getStatus());</span>
+<span class="fc" id="L35">	}</span>
+
+	@Test
+	void examArchiveAndFinalChamberStartLocked() {
+
+<span class="fc" id="L40">		Room lectureHall = lectureHall();</span>
+<span class="fc" id="L41">		Room examArchive = lectureHall.getExit(Direction.NORTH);</span>
+<span class="fc" id="L42">		Room finalChamber = examArchive.getExit(Direction.EAST).getExit(Direction.NORTH);</span>
+
+<span class="fc" id="L44">		assertFalse(lectureHall.isLocked());</span>
+<span class="fc" id="L45">		assertTrue(examArchive.isLocked());</span>
+<span class="fc" id="L46">		assertEquals(&quot;Archive Key&quot;, examArchive.getRequiredKeyName());</span>
+<span class="fc" id="L47">		assertTrue(finalChamber.isLocked());</span>
+<span class="fc" id="L48">		assertEquals(&quot;Vault Key&quot;, finalChamber.getRequiredKeyName());</span>
+<span class="fc" id="L49">	}</span>
+
+	@Test
+	void brokenElevatorHasArmedOneTimeElectricTrap() {
+<span class="fc" id="L53">		Trap trap = lectureHall().getExit(Direction.SOUTH).getTrap();</span>
+
+<span class="fc" id="L55">		assertEquals(&quot;Loose Wires Trap&quot;, trap.getName());</span>
+<span class="fc" id="L56">		assertEquals(TrapType.ELECTRIC, trap.getType());</span>
+<span class="fc" id="L57">		assertEquals(8, trap.getDamage());</span>
+<span class="fc" id="L58">		assertTrue(trap.isArmed());</span>
+<span class="fc" id="L59">		assertTrue(trap.isOneTimeTrigger());</span>
+<span class="fc" id="L60">	}</span>
+
+	@Test
+	void keyItemsAndBossAreInTheRightRooms() {
+<span class="fc" id="L64">		Room lectureHall = lectureHall();</span>
+<span class="fc" id="L65">		Room labStorage = lectureHall.getExit(Direction.EAST);</span>
+<span class="fc" id="L66">		Room examArchive = lectureHall.getExit(Direction.NORTH);</span>
+<span class="fc" id="L67">		Room deanVault = examArchive.getExit(Direction.EAST);</span>
+<span class="fc" id="L68">		Room finalChamber = deanVault.getExit(Direction.NORTH);</span>
+
+<span class="fc" id="L70">		assertTrue(labStorage.findItem(&quot;Archive Key&quot;).isPresent());</span>
+<span class="fc" id="L71">		assertTrue(examArchive.findItem(&quot;Lost Gradebook&quot;).isPresent());</span>
+<span class="fc" id="L72">		assertTrue(deanVault.findItem(&quot;Vault Key&quot;).isPresent());</span>
+<span class="fc" id="L73">		assertInstanceOf(BossMonster.class, finalChamber.findMonster(&quot;Final Exam Phantom&quot;).orElseThrow());</span>
+<span class="fc" id="L74">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span>haunted-university-basement (Nov 16, 2026 7:13:15 PM)</div></body></html>

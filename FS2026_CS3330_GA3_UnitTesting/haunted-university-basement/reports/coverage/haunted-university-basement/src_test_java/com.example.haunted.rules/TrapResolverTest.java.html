@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TrapResolverTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">haunted-university-basement (Nov 16, 2026 7:13:15 PM)</a> &gt; <a href="../../index.html" class="el_group">haunted-university-basement</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.example.haunted.rules</a> &gt; <span class="el_source">TrapResolverTest.java</span></div><h1>TrapResolverTest.java</h1><pre class="source lang-java linenums">package com.example.haunted.rules;
+
+import com.example.haunted.events.InteractionResult;
+import com.example.haunted.model.Inventory;
+import com.example.haunted.model.Player;
+import com.example.haunted.model.Trap;
+import com.example.haunted.model.TrapType;
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+<span class="fc" id="L13">class TrapResolverTest {</span>
+
+<span class="fc" id="L15">    private final TrapResolver resolver = new TrapResolver();</span>
+
+    private Player createPlayer() {
+<span class="fc" id="L18">        return new Player(&quot;Gabe&quot;, 100, 10, 5, new Inventory(10));</span>
+    }
+
+    private Trap createTrap(boolean armed, boolean oneTime, int damage) {
+<span class="fc" id="L22">        return new Trap(</span>
+<span class="fc" id="L23">            &quot;Electric Trap&quot;,</span>
+<span class="fc" id="L24">            TrapType.ELECTRIC,</span>
+<span class="fc" id="L25">            damage,</span>
+<span class="fc" id="L26">            armed,</span>
+<span class="fc" id="L27">            oneTime</span>
+        );
+    }
+
+    @Test
+    void resolveTrapShouldReturnFalseWhenTrapIsNull() {
+<span class="fc" id="L33">        Player player = createPlayer();</span>
+
+<span class="fc" id="L35">        InteractionResult result = resolver.resolveTrap(player, null);</span>
+
+<span class="fc" id="L37">        assertFalse(result.isSuccess());</span>
+<span class="fc" id="L38">        assertEquals(100, player.getHealth());</span>
+<span class="fc" id="L39">        assertEquals(&quot;No trap was triggered.&quot;, result.getMessage());</span>
+<span class="fc" id="L40">    }</span>
+
+    @Test
+    void resolveTrapShouldReturnFalseWhenTrapIsDisarmed() {
+<span class="fc" id="L44">        Player player = createPlayer();</span>
+<span class="fc" id="L45">        Trap trap = createTrap(false, true, 20);</span>
+
+<span class="fc" id="L47">        InteractionResult result = resolver.resolveTrap(player, trap);</span>
+
+<span class="fc" id="L49">        assertFalse(result.isSuccess());</span>
+<span class="fc" id="L50">        assertEquals(100, player.getHealth());</span>
+<span class="fc" id="L51">        assertFalse(trap.isArmed());</span>
+<span class="fc" id="L52">        assertEquals(&quot;No trap was triggered.&quot;, result.getMessage());</span>
+<span class="fc" id="L53">    }</span>
+
+    @Test
+    void resolveTrapShouldDamagePlayerWhenTrapIsArmed() {
+<span class="fc" id="L57">        Player player = createPlayer();</span>
+<span class="fc" id="L58">        Trap trap = createTrap(true, false, 20);</span>
+
+<span class="fc" id="L60">        InteractionResult result = resolver.resolveTrap(player, trap);</span>
+
+<span class="fc" id="L62">        assertTrue(result.isSuccess());</span>
+<span class="fc" id="L63">        assertEquals(80, player.getHealth());</span>
+<span class="fc" id="L64">        assertTrue(trap.isArmed());</span>
+<span class="fc" id="L65">    }</span>
+
+    @Test
+    void resolveTrapShouldDisarmOneTimeTrap() {
+<span class="fc" id="L69">        Player player = createPlayer();</span>
+<span class="fc" id="L70">        Trap trap = createTrap(true, true, 20);</span>
+
+<span class="fc" id="L72">        InteractionResult result = resolver.resolveTrap(player, trap);</span>
+
+<span class="fc" id="L74">        assertTrue(result.isSuccess());</span>
+<span class="fc" id="L75">        assertEquals(80, player.getHealth());</span>
+<span class="fc" id="L76">        assertFalse(trap.isArmed());</span>
+<span class="fc" id="L77">    }</span>
+
+    @Test
+    void resolveTrapShouldKeepRepeatableTrapArmed() {
+<span class="fc" id="L81">        Player player = createPlayer();</span>
+<span class="fc" id="L82">        Trap trap = createTrap(true, false, 20);</span>
+
+<span class="fc" id="L84">        resolver.resolveTrap(player, trap);</span>
+
+<span class="fc" id="L86">        assertTrue(trap.isArmed());</span>
+
+<span class="fc" id="L88">        InteractionResult secondResult = resolver.resolveTrap(player, trap);</span>
+
+<span class="fc" id="L90">        assertTrue(secondResult.isSuccess());</span>
+<span class="fc" id="L91">        assertEquals(60, player.getHealth());</span>
+<span class="fc" id="L92">        assertTrue(trap.isArmed());</span>
+<span class="fc" id="L93">    }</span>
+
+    @Test
+    void resolveTrapShouldHandleZeroDamage() {
+<span class="fc" id="L97">        Player player = createPlayer();</span>
+<span class="fc" id="L98">        Trap trap = createTrap(true, false, 0);</span>
+
+<span class="fc" id="L100">        InteractionResult result = resolver.resolveTrap(player, trap);</span>
+
+<span class="fc" id="L102">        assertTrue(result.isSuccess());</span>
+<span class="fc" id="L103">        assertEquals(100, player.getHealth());</span>
+<span class="fc" id="L104">        assertTrue(trap.isArmed());</span>
+<span class="fc" id="L105">    }</span>
+
+    @Test
+    void resolveTrapShouldNotReducePlayerHealthBelowZero() {
+<span class="fc" id="L109">        Player player = createPlayer();</span>
+<span class="fc" id="L110">        Trap trap = createTrap(true, false, 150);</span>
+
+<span class="fc" id="L112">        InteractionResult result = resolver.resolveTrap(player, trap);</span>
+
+<span class="fc" id="L114">        assertTrue(result.isSuccess());</span>
+<span class="fc" id="L115">        assertEquals(0, player.getHealth());</span>
+<span class="fc" id="L116">        assertFalse(player.isAlive());</span>
+<span class="fc" id="L117">    }</span>
+
+    @Test
+    void resolveTrapShouldIncludeTrapNameAndDamageInMessage() {
+<span class="fc" id="L121">        Player player = createPlayer();</span>
+<span class="fc" id="L122">        Trap trap = createTrap(true, false, 15);</span>
+
+<span class="fc" id="L124">        InteractionResult result = resolver.resolveTrap(player, trap);</span>
+
+<span class="fc" id="L126">        assertEquals(</span>
+<span class="fc" id="L127">            &quot;Trap 'Electric Trap' triggered for 15 damage.&quot;,</span>
+<span class="fc" id="L128">            result.getMessage()</span>
+        );
+<span class="fc" id="L130">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span>haunted-university-basement (Nov 16, 2026 7:13:15 PM)</div></body></html>

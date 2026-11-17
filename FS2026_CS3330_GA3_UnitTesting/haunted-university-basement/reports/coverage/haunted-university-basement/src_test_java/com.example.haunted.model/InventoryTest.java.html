@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>InventoryTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">haunted-university-basement (Nov 16, 2026 7:13:15 PM)</a> &gt; <a href="../../index.html" class="el_group">haunted-university-basement</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.example.haunted.model</a> &gt; <span class="el_source">InventoryTest.java</span></div><h1>InventoryTest.java</h1><pre class="source lang-java linenums">package com.example.haunted.model;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+<span class="fc" id="L9">class InventoryTest {</span>
+
+    private Inventory createInventory(int capacity) {
+<span class="fc" id="L12">        return new Inventory(capacity);</span>
+    }
+
+    private Weapon createWeapon(String name) {
+<span class="fc" id="L16">        return new Weapon(name, &quot;A weapon for testing&quot;, 5);</span>
+    }
+
+    private Armor createArmor(String name) {
+<span class="fc" id="L20">        return new Armor(name, &quot;Armor for testing&quot;, 3);</span>
+    }
+
+    @Test
+    void newInventoryShouldBeEmpty() {
+<span class="fc" id="L25">        Inventory inventory = createInventory(5);</span>
+
+<span class="fc" id="L27">        assertTrue(inventory.getItems().isEmpty());</span>
+<span class="fc" id="L28">        assertFalse(inventory.isFull());</span>
+<span class="fc" id="L29">        assertEquals(5, inventory.getCapacity());</span>
+<span class="fc" id="L30">    }</span>
+
+    @Test
+    void addItemShouldStoreItem() {
+<span class="fc" id="L34">        Inventory inventory = createInventory(5);</span>
+<span class="fc" id="L35">        Weapon weapon = createWeapon(&quot;Sword&quot;);</span>
+
+<span class="fc" id="L37">        assertTrue(inventory.addItem(weapon));</span>
+<span class="fc" id="L38">        assertTrue(inventory.contains(&quot;Sword&quot;));</span>
+<span class="fc" id="L39">        assertEquals(1, inventory.getItems().size());</span>
+<span class="fc" id="L40">    }</span>
+
+    @Test
+    void addItemShouldAcceptDifferentItemTypes() {
+<span class="fc" id="L44">        Inventory inventory = createInventory(5);</span>
+
+<span class="fc" id="L46">        assertTrue(inventory.addItem(createWeapon(&quot;Sword&quot;)));</span>
+<span class="fc" id="L47">        assertTrue(inventory.addItem(createArmor(&quot;Armor&quot;)));</span>
+
+<span class="fc" id="L49">        assertEquals(2, inventory.getItems().size());</span>
+<span class="fc" id="L50">    }</span>
+
+    @Test
+    void addItemShouldFailWhenInventoryIsFull() {
+<span class="fc" id="L54">        Inventory inventory = createInventory(1);</span>
+<span class="fc" id="L55">        inventory.addItem(createWeapon(&quot;Sword&quot;));</span>
+
+<span class="fc" id="L57">        assertFalse(inventory.addItem(createArmor(&quot;Armor&quot;)));</span>
+<span class="fc" id="L58">        assertEquals(1, inventory.getItems().size());</span>
+<span class="fc" id="L59">    }</span>
+
+    @Test
+    void inventoryShouldBecomeFullAtCapacity() {
+<span class="fc" id="L63">        Inventory inventory = createInventory(2);</span>
+
+<span class="fc" id="L65">        inventory.addItem(createWeapon(&quot;Sword&quot;));</span>
+<span class="fc" id="L66">        assertFalse(inventory.isFull());</span>
+
+<span class="fc" id="L68">        inventory.addItem(createArmor(&quot;Armor&quot;));</span>
+<span class="fc" id="L69">        assertTrue(inventory.isFull());</span>
+<span class="fc" id="L70">    }</span>
+
+    @Test
+    void findItemShouldIgnoreLetterCase() {
+<span class="fc" id="L74">        Inventory inventory = createInventory(5);</span>
+<span class="fc" id="L75">        inventory.addItem(createWeapon(&quot;Magic Sword&quot;));</span>
+
+<span class="fc" id="L77">        assertTrue(inventory.findItem(&quot;magic sword&quot;).isPresent());</span>
+<span class="fc" id="L78">        assertTrue(inventory.findItem(&quot;MAGIC SWORD&quot;).isPresent());</span>
+<span class="fc" id="L79">    }</span>
+
+    @Test
+    void findItemShouldReturnEmptyWhenItemDoesNotExist() {
+<span class="fc" id="L83">        Inventory inventory = createInventory(5);</span>
+
+<span class="fc" id="L85">        assertTrue(inventory.findItem(&quot;Missing Item&quot;).isEmpty());</span>
+<span class="fc" id="L86">    }</span>
+
+    @Test
+    void containsShouldReturnFalseForMissingItem() {
+<span class="fc" id="L90">        Inventory inventory = createInventory(5);</span>
+
+<span class="fc" id="L92">        assertFalse(inventory.contains(&quot;Sword&quot;));</span>
+<span class="fc" id="L93">    }</span>
+
+    @Test
+    void removeItemShouldRemoveExistingItem() {
+<span class="fc" id="L97">        Inventory inventory = createInventory(5);</span>
+<span class="fc" id="L98">        inventory.addItem(createWeapon(&quot;Sword&quot;));</span>
+
+<span class="fc" id="L100">        Item removed = inventory.removeItem(&quot;Sword&quot;);</span>
+
+<span class="fc" id="L102">        assertNotNull(removed);</span>
+<span class="fc" id="L103">        assertEquals(&quot;Sword&quot;, removed.getName());</span>
+<span class="fc" id="L104">        assertFalse(inventory.contains(&quot;Sword&quot;));</span>
+<span class="fc" id="L105">        assertTrue(inventory.getItems().isEmpty());</span>
+<span class="fc" id="L106">    }</span>
+
+    @Test
+    void removeItemShouldIgnoreLetterCase() {
+<span class="fc" id="L110">        Inventory inventory = createInventory(5);</span>
+<span class="fc" id="L111">        inventory.addItem(createWeapon(&quot;Sword&quot;));</span>
+
+<span class="fc" id="L113">        Item removed = inventory.removeItem(&quot;sWoRd&quot;);</span>
+
+<span class="fc" id="L115">        assertNotNull(removed);</span>
+<span class="fc" id="L116">        assertFalse(inventory.contains(&quot;Sword&quot;));</span>
+<span class="fc" id="L117">    }</span>
+
+    @Test
+    void removeItemShouldReturnNullWhenItemDoesNotExist() {
+<span class="fc" id="L121">        Inventory inventory = createInventory(5);</span>
+
+<span class="fc" id="L123">        assertNull(inventory.removeItem(&quot;Missing Item&quot;));</span>
+<span class="fc" id="L124">    }</span>
+
+    @Test
+    void removingItemShouldMakeSpaceInInventory() {
+<span class="fc" id="L128">        Inventory inventory = createInventory(1);</span>
+<span class="fc" id="L129">        inventory.addItem(createWeapon(&quot;Sword&quot;));</span>
+
+<span class="fc" id="L131">        inventory.removeItem(&quot;Sword&quot;);</span>
+
+<span class="fc" id="L133">        assertFalse(inventory.isFull());</span>
+<span class="fc" id="L134">        assertTrue(inventory.addItem(createArmor(&quot;Armor&quot;)));</span>
+<span class="fc" id="L135">    }</span>
+
+    @Test
+    void getItemsShouldNotAllowDirectModification() {
+<span class="fc" id="L139">        Inventory inventory = createInventory(5);</span>
+<span class="fc" id="L140">        inventory.addItem(createWeapon(&quot;Sword&quot;));</span>
+
+<span class="fc" id="L142">        assertThrows(</span>
+<span class="fc" id="L143">            UnsupportedOperationException.class,</span>
+<span class="pc" id="L144">            () -&gt; inventory.getItems().clear()</span>
+        );
+<span class="fc" id="L146">    }</span>
+
+    @Test
+    void zeroCapacityInventoryShouldBeFullImmediately() {
+<span class="fc" id="L150">        Inventory inventory = createInventory(0);</span>
+
+<span class="fc" id="L152">        assertTrue(inventory.isFull());</span>
+<span class="fc" id="L153">        assertFalse(inventory.addItem(createWeapon(&quot;Sword&quot;)));</span>
+<span class="fc" id="L154">    }</span>
+
+    @ParameterizedTest
+    @CsvSource({
+        &quot;1, 1&quot;,
+        &quot;2, 2&quot;,
+        &quot;3, 3&quot;
+    })
+    void inventoryShouldStoreItemsUpToItsCapacity(
+            int capacity, int expectedItems) {
+<span class="fc" id="L164">        Inventory inventory = createInventory(capacity);</span>
+
+<span class="fc bfc" id="L166" title="All 2 branches covered.">        for (int i = 0; i &lt; capacity; i++) {</span>
+<span class="fc" id="L167">            assertTrue(inventory.addItem(createWeapon(&quot;Weapon &quot; + i)));</span>
+        }
+
+<span class="fc" id="L170">        assertEquals(expectedItems, inventory.getItems().size());</span>
+<span class="fc" id="L171">        assertTrue(inventory.isFull());</span>
+<span class="fc" id="L172">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span>haunted-university-basement (Nov 16, 2026 7:13:15 PM)</div></body></html>
