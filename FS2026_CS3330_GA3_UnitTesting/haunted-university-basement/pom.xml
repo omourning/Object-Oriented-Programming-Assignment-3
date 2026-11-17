@@ -48,9 +48,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
-                <configuration>
-                    <useModulePath>false</useModulePath>
-                </configuration>
             </plugin>
             <!-- Pitest mutation testing plugin. Run with: clean test-compile org.pitest:pitest-maven:mutationCoverage-->
             <plugin>
