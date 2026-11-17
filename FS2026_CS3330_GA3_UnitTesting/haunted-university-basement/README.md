@@ -29,3 +29,9 @@ Recover the **Lost Gradebook** and defeat the **Final Exam Phantom**.
 The game is won only when both are true:
 1. The player has obtained the `Lost Gradebook`
 2. The `Final Exam Phantom` has been defeated
+
+## Running Test
+1. How to run the tests: right-click src/test/java and choose Run As -> JUnit Test.
+2. How to run coverage: Coverage As -> JUnit Test.
+3. How to run Pitest: Run As -> Maven -> Goals -> type "clean test-compile org.pitest:pitest-maven:mutationCoverage" -> Apply -> Run
+4. Where the reports are (reports/coverage, reports/pitest).
